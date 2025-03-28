@@ -1,4 +1,4 @@
-name: Build React with TypeScript
+name: Build React with TypeScript (Bun)
 
 on:
   push:
@@ -18,20 +18,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v4
+      - name: Set Up Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18
-          cache: 'npm' # Adjust if using npm or yarn
+          bun-version: latest
 
       - name: Install Dependencies
-        run: npm install --frozen-lockfile  # Change to npm install or yarn if needed
+        run: bun install --frozen-lockfile
 
       - name: Type Check with TypeScript
-        run: npm tsc --noEmit  # Ensure TypeScript compiles without errors
+        run: bun run tsc --noEmit  # Ensure TypeScript compiles without errors
 
       - name: Build React App
-        run: npm build
+        run: bun run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4

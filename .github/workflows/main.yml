@@ -1,1 +1,40 @@
+name: Build React with TypeScript
 
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm' # Adjust if using npm or yarn
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile  # Change to npm install or yarn if needed
+
+      - name: Type Check with TypeScript
+        run: pnpm tsc --noEmit  # Ensure TypeScript compiles without errors
+
+      - name: Build React App
+        run: pnpm build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-build
+          path: build # Adjust if your output directory is different

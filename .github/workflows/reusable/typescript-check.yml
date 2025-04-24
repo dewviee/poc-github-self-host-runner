@@ -9,8 +9,6 @@ on:
 jobs:
   typescript-check:
     runs-on: ubuntu-latest
-    env:
-      BUN_VERSION: ${{ inputs.bun-version != '' && inputs.bun-version || '1.2.7' }} # default bun version
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -18,7 +16,7 @@ jobs:
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: ${{ env.BUN_VERSION }}
+          bun-version: ${{ bun-version }}
 
       - name: Cache node_modules
         uses: actions/cache@v4

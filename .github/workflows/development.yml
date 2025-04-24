@@ -8,9 +8,9 @@ on:
 jobs:
   ts-check:
     name: "Typescript Check"
-    uses: dewviee/poc-github-self-host-runner/.github/workflows/reusable-typescript-check.yml@main
+    uses: dewviee/poc-github-self-host-runner/.github/workflows/reusable-bun-typescript-check.yml@main
     with:
-      bun-version: 1.2.7
+      version: 1.2.7
 
   build:
     name: Build Project

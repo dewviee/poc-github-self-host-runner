@@ -3,7 +3,7 @@ name: Typescript Check
 on:
   workflow_call:
     inputs:
-      bun-version:
+      version:
         type: string
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: ${{ inputs.bun-version }}
+          bun-version: ${{ inputs.version }}
 
       - name: Install Dependencies
         run: bun i --ci

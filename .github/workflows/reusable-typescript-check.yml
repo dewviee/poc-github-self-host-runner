@@ -16,7 +16,7 @@ jobs:
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: ${{ bun-version }}
+          bun-version: ${{ inputs.bun-version }}
 
       - name: Cache node_modules
         uses: actions/cache@v4

@@ -13,11 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Use Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ inputs.bun-version }}
-
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
@@ -25,6 +20,11 @@ jobs:
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: |
             bun-${{ runner.os }}-
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ inputs.bun-version }}
 
       - name: Install Dependencies
         run: bun i --ci

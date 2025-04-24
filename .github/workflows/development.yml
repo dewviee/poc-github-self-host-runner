@@ -7,7 +7,7 @@ on:
 
 jobs:
   ts-check:
-    name: "Typescript Check"
+    name: "Test"
     uses: dewviee/poc-github-self-host-runner/.github/workflows/reusable-bun-typescript-check.yml@main
     with:
       version: 1.2.7

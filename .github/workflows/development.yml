@@ -19,7 +19,7 @@ jobs:
 
   deploy:
     name: Deploy to Server
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build # Ensures build completes before deploying
 
     steps:
@@ -33,11 +33,9 @@ jobs:
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_PATH: ${{ secrets.SERVER_PATH }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "Deploy..."
+          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+          scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test
           echo "✅ Deploy Successful "
-          # echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
-          # scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:$SERVER_PATH
-          # rm -f private_key

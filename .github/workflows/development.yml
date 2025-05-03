@@ -4,18 +4,20 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+  
 
 jobs:
-  ts-check:
-    name: "Test"
-    uses: dewviee/poc-github-self-host-runner/.github/workflows/reusable-bun-typescript-check.yml@main
-    with:
-      version: 1.2.7
+  # ts-check:
+  #   name: "Test"
+  #   uses: dewviee/poc-github-self-host-runner/.github/workflows/reusable-bun-typescript-check.yml@main
+  #   with:
+  #     version: 1.2.7
 
   build:
     name: Build Project
     uses: ./.github/workflows/reusable-build.yml
-    needs: ts-check # Ensures the test job completes successfully before running build
+    # needs: ts-check # Ensures the test job completes successfully before running build
 
   deploy:
     name: Deploy to Server

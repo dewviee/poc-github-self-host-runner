@@ -39,5 +39,12 @@ jobs:
         run: |
           echo "Deploy..."
           echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+
+          echo "Add Known Host..."
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+          echo "Copy file to host"
           scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test
+          
           echo "✅ Deploy Successful "

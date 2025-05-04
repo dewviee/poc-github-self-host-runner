@@ -57,21 +57,23 @@ jobs:
                 cd ~/deploy-folder-test
                 ln -sfn $FOLDER_NAME release
 
-                echo "Start Removing old built folder..."
-                # Get the absolute path of the symlink target
-                target=$(readlink -f release)
-                
-                # Loop through all folders (excluding symlinks)
-                for dir in */; do
-                  fullpath=$(realpath "$dir")
-                  if [[ "$fullpath" != "$target" ]]; then
-                    echo "Removing $dir..." 
-                    rm -rf "$dir" 
-                  else
-                    echo "Keeping $dir (symlink target)"
-                  fi
-                done
-                echo "✅ Success Removing old built folder!"
+                bash <<'INNER_EOF'
+                  echo "Start Removing old built folder..."
+                  # Get the absolute path of the symlink target
+                  target=$(readlink -f release)
+                  
+                  # Loop through all folders (excluding symlinks)
+                  for dir in */; do
+                    fullpath=$(realpath "$dir")
+                    if [[ "$fullpath" != "$target" ]]; then
+                      echo "Removing $dir..." 
+                      rm -rf "$dir" 
+                    else
+                      echo "Keeping $dir (symlink target)"
+                    fi
+                  done
+                  echo "✅ Success Removing old built folder!"
+                INNER_EOF
           EOF
           
           echo "✅ Deploy Successful "

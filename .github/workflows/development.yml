@@ -24,8 +24,8 @@ jobs:
     with:
       build-name: build-output
       build-path: dist
-      destination: ~/deploy-folder-test/development
-      clean-up-script-dest: ~/deploy-folder-test/clean_old_builds.sh
+      destination: ./deploy-folder-test/development
+      clean-up-script-dest: ./deploy-folder-test/clean_old_builds.sh
     secrets:
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}

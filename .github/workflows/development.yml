@@ -5,7 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-  
 
 jobs:
   # ts-check:
@@ -20,44 +19,57 @@ jobs:
     # needs: ts-check # Ensures the test job completes successfully before running build
 
   deploy:
-    name: Deploy to Server
-    runs-on: self-hosted
-    needs: build # Ensures build completes before deploying
+    uses: ./.github/workflows/reuseable-deploy.yml
+    with:
+      build-name: build-output
+      build-path: dist
+      destination: ~/deploy-folder-test/development
+      clean-up-script-dest: ~/deploy-folder-test/clean_old_builds.sh
+    secrets:
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: dist
+  ########################## Old deploy script without reusable workflow
+  # deploy:
+  #   name: Deploy to Server
+  #   runs-on: self-hosted
+  #   needs: build # Ensures build completes before deploying
 
-      - name: Copy Build to Server
-        env:
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          echo "Deploy..."
-          echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+  #   steps:
+  #     - name: Download Build Artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build-output
+  #         path: dist
 
-          echo "Add Known Host..."
-          mkdir -p ~/.ssh
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+  #     - name: Copy Build to Server
+  #       env:
+  #         SERVER_USER: ${{ secrets.SERVER_USER }}
+  #         SERVER_HOST: ${{ secrets.SERVER_HOST }}
+  #         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  #       run: |
+  #         echo "Deploy..."
+  #         echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
 
-          echo "Create folder on Host"
-          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
-          FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
-          ssh -i private_key $SERVER_USER@$SERVER_HOST \ mkdir -p ~/deploy-folder-test/${FOLDER_NAME}
+  #         echo "Add Known Host..."
+  #         mkdir -p ~/.ssh
+  #         ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
-          echo "Copy file to host"
-          scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test/${FOLDER_NAME}
+  #         echo "Create folder on Host"
+  #         TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+  #         FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
+  #         ssh -i private_key $SERVER_USER@$SERVER_HOST \ mkdir -p ~/deploy-folder-test/${FOLDER_NAME}
 
-          echo "Zero Downtime Link to latest release folder"
-          ssh -i private_key $SERVER_USER@$SERVER_HOST <<EOF
-                cd ~/deploy-folder-test
-                ln -sfn $FOLDER_NAME release
+  #         echo "Copy file to host"
+  #         scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test/${FOLDER_NAME}
 
-                ./clean_old_builds.sh
-          EOF
-          
-          echo "✅ Deploy Successful "
+  #         echo "Zero Downtime Link to latest release folder"
+  #         ssh -i private_key $SERVER_USER@$SERVER_HOST <<EOF
+  #               cd ~/deploy-folder-test
+  #               ln -sfn $FOLDER_NAME release
+
+  #               ./clean_old_builds.sh
+  #         EOF
+
+  #         echo "✅ Deploy Successful "

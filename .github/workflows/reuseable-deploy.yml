@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      destination:
+        type: string
+      build-name:
+        type: string
+      build-path:
+        type: string
+      clean-up-script-dest:
+        required: false
+        type: string
+
+    secrets:
+      SERVER_USER:
+        required: true
+      SERVER_HOST:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{inputs.build-name}}
+          path: ${{inputs.build-path}}
+
+      - name: Setup Private Key
+        run: echo "${{secrets.SSH_PRIVATE_KEY}}" > private_key && chmod 600 private_key
+
+      - name: Add Known Host
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{secrets.SERVER_HOST}}" >> ~/.ssh/known_hosts
+
+      - name: Setup ENV
+        run: |
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
+
+      - name: Upload to Host
+        run: scp -r -i private_key dist/* ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}}:${{inputs.destination}}/$FOLDER_NAME
+
+      - name: Zero Downtime Link to latest release folder
+        run: |
+          ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} <<EOF
+            cd ${{inputs.destination}}
+            ln -sfn $FOLDER_NAME release
+          EOF
+
+      - name: Run cleanup Bash Script
+        if: ${{inputs.clean-up-script-dest != ''}}
+        run: |
+          ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} \
+          "bash -s" < ${{ inputs.clean-up-script-dest}}

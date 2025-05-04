@@ -19,6 +19,7 @@ jobs:
     # needs: ts-check # Ensures the test job completes successfully before running build
 
   deploy:
+    needs: build
     uses: ./.github/workflows/reuseable-deploy.yml
     with:
       build-name: build-output

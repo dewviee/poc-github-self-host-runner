@@ -44,7 +44,15 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
+          echo "Create folder on Host"
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
+          ssh -i private_key $SERVER_USER@$SERVER_HOST \ mkdir -p ~/deploy-folder-test/${FOLDER_NAME}
+
           echo "Copy file to host"
-          scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test
+          scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test/${FOLDER_NAME}
+
+          echo "Zero Downtime Link to latest release folder"
+          ssh -i private_key $SERVER_USER@$SERVER_HOST \ ln -sf ~/deploy-folder-test/${FOLDER_NAME} ~/deploy-folder-test/release
           
           echo "✅ Deploy Successful "

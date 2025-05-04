@@ -53,6 +53,9 @@ jobs:
           scp -r -i private_key dist/* $SERVER_USER@$SERVER_HOST:./deploy-folder-test/${FOLDER_NAME}
 
           echo "Zero Downtime Link to latest release folder"
-          ssh -i private_key $SERVER_USER@$SERVER_HOST \ ln -sf ~/deploy-folder-test/${FOLDER_NAME} ~/deploy-folder-test/release
+          ssh -i private_key $SERVER_USER@$SERVER_HOST <<EOF
+                cd ~/deploy-folder-test
+                ln -sfn $FOLDER_NAME release
+          EOF
           
           echo "✅ Deploy Successful "

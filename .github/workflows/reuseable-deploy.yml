@@ -71,37 +71,43 @@ jobs:
           #   ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
           #     "bash -s" < "${{ inputs.clean-up-script-dest }}"
 
-      - name: Clean up old built
-        if: ${{inputs.clean-up-old-deploy != ''}}
+        # … earlier steps (download, setup SSH, etc.) …
+
+      - name: Clean up old builds
+        if: ${{ inputs.clean-up-old-deploy != '' }}
         run: |
-          echo ">>> Running cleanup script"
-          ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} <<EOF
+          set -euo pipefail
+
+          # read the input into a shell var
+          CLEAN_DEST="${{ inputs.clean-up-old-deploy }}"
+          if [ -z "$CLEAN_DEST" ]; then
+            echo "❌ Missing clean-up-old-deploy input"
+            exit 1
+          fi
+
+          echo ">>> Running cleanup for: $CLEAN_DEST"
+
+          ssh -i private_key \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} <<'EOF'
             set -euo pipefail
 
-
-            if [ -z "${{ inputs.clean-up-old-deploy }}" ]; then
-              echo "❌ Missing clean-up-old-deploy!"
-              exit 1
-            fi
-
-            # Get absolute path of script directory
+            # compute absolute paths
             SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-            TARGET_DIR="$(realpath "${{inputs.destination}}")"
+            TARGET_DIR="$(realpath "$CLEAN_DEST")"
 
-            # Check that the target is inside the script directory
+            # ensure TARGET_DIR is inside where the script lives
             if [[ "$TARGET_DIR" != "$SCRIPT_DIR"* ]]; then
               echo "❌ Refusing to operate outside script directory: $TARGET_DIR"
               exit 1
             fi
 
             cd "$TARGET_DIR" || { echo "❌ Failed to cd into $TARGET_DIR"; exit 1; }
-
             echo "📁 Cleaning in: $TARGET_DIR"
 
-            # Get absolute path of the symlink target
+            # find the real "release" target
             target=$(readlink -f release)
 
-            # Loop through all folders (excluding symlinks)
+            # remove every folder except the symlink target
             for dir in */; do
               [ -d "$dir" ] || continue
               fullpath=$(realpath "$dir")
@@ -114,5 +120,4 @@ jobs:
             done
 
             echo "🎉 Done cleaning!"
-
           EOF

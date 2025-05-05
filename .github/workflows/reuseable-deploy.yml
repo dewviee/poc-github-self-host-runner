@@ -46,6 +46,7 @@ jobs:
 
       - name: Create folder to deploy on Server
         run: |
+          echo $FOLDER_NAME
           ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{inputs.destination}}/${FOLDER_NAME}"
 
       - name: Upload to Host

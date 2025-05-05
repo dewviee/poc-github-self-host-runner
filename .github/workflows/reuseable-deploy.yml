@@ -47,16 +47,16 @@ jobs:
       - name: Create folder to deploy on Server
         run:
           ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} \
-          mkdir -p ${{inputs.destination}}/$FOLDER_NAME
+          mkdir -p ${{inputs.destination}}/${FOLDER_NAME}
 
       - name: Upload to Host
-        run: scp -r -i private_key dist/* ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}}:${{inputs.destination}}/$FOLDER_NAME
+        run: scp -r -i private_key dist/* ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}}:${{inputs.destination}}/${FOLDER_NAME}
 
       - name: Zero Downtime Link to latest release folder
         run: |
           ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} <<EOF
             cd ${{inputs.destination}}
-            ln -sfn $FOLDER_NAME release
+            ln -sfn ${FOLDER_NAME} release
           EOF
 
       - name: Run cleanup Bash Script

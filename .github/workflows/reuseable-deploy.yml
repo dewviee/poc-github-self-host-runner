@@ -42,7 +42,7 @@ jobs:
       - name: Prepare folder to scp
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
-          FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}
+          FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
           mv ./${{inputs.build-path}} ./${FOLDER_NAME}
 
       - name: Upload to Host

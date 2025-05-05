@@ -12,9 +12,6 @@ on:
       clean-up-script-dest:
         required: false
         type: string
-      debug:
-        type: boolean
-        required: false
 
     secrets:
       SERVER_USER:
@@ -46,16 +43,6 @@ jobs:
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
           FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
-
-      - name: Debugging
-        if: ${{inputs.clean-up-script-dest != ''}}
-        run: |
-          ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} <<'EOF'
-            whoami
-            echo \$HOME
-            cd ~
-            pwd
-          EOF
 
       - name: Create folder to deploy on Server
         run:

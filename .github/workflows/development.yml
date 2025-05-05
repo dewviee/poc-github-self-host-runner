@@ -26,6 +26,7 @@ jobs:
       build-path: dist
       destination: ~/project/dev
       clean-up-script-dest: ~/project/clean_old_builds.sh
+      debug: true
     secrets:
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}

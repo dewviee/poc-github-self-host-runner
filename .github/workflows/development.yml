@@ -25,8 +25,8 @@ jobs:
       build-name: build-output
       build-path: dist
       destination: /home/deploy/project/dev
-      clean-up-script-dest: /home/deploy/project/clean_old_builds.sh
- 
+      clean-up-script-dest: /home/deploy/project/clean-old-builds.sh
+
     secrets:
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}

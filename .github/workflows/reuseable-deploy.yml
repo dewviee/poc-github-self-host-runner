@@ -28,39 +28,45 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{inputs.build-name}}
-          path: ${{inputs.build-path}}
+          name: ${{ inputs.build-name }}
+          path: ${{ inputs.build-path }}
 
       - name: Setup Private Key
-        run: echo "${{secrets.SSH_PRIVATE_KEY}}" > private_key && chmod 600 private_key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+          chmod 600 private_key
 
       - name: Add Known Host
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{secrets.SERVER_HOST}}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Setup ENV
+      - name: Full Deploy Script
         run: |
+          set -euo pipefail
+
+          # 1) Compute folder
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
           FOLDER_NAME="${TIMESTAMP}_${GITHUB_SHA::7}"
+          echo ">>> Deploying to folder: $FOLDER_NAME"
 
-      - name: Create folder to deploy on Server
-        run: |
-          echo $FOLDER_NAME
-          ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{inputs.destination}}/${FOLDER_NAME}"
+          # 2) Create remote dir
+          ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "mkdir -p ${{ inputs.destination }}/$FOLDER_NAME"
 
-      - name: Upload to Host
-        run: scp -r -i private_key dist/* ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}}:${{inputs.destination}}/${FOLDER_NAME}
+          # 3) Upload artifacts
+          scp -r -i private_key ${{ inputs.build-path }}/* \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ inputs.destination }}/$FOLDER_NAME
 
-      - name: Zero Downtime Link to latest release folder
-        run: |
-          ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} <<EOF
-            cd ${{inputs.destination}}
-            ln -sfn ${FOLDER_NAME} release
+          # 4) Symlink “release” to new folder
+          ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} <<EOF
+            cd ${{ inputs.destination }}
+            ln -sfn $FOLDER_NAME release
           EOF
 
-      - name: Run cleanup Bash Script
-        if: ${{inputs.clean-up-script-dest != ''}}
-        run: |
-          ssh -i private_key ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} \
-          "bash -s" < ${{ inputs.clean-up-script-dest}}
+          # 5) Optional cleanup script
+          if [[ -n "${{ inputs.clean-up-script-dest }}" ]]; then
+            echo ">>> Running cleanup script"
+            ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "bash -s" < "${{ inputs.clean-up-script-dest }}"
+          fi

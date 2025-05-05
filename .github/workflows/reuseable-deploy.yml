@@ -50,6 +50,7 @@ jobs:
             mkdir -p /home/${{ secrets.SERVER_USER }}/project/dev/${FOLDER_NAME}
 
             echo "/home/${{ secrets.SERVER_USER }}/project/dev/${FOLDER_NAME}" >> debug.test
+            whoami >> test
           EOF
 
       - name: Upload to Host

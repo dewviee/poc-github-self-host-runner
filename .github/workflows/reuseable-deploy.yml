@@ -79,9 +79,8 @@ jobs:
             set -euo pipefail
 
 
-            # Ensure a parameter is passed
-            if [ $# -ne 1 ]; then
-              echo "❌ Usage: $0 <relative-deploy-folder>"
+            if [ -z "${{ inputs.clean-up-old-deploy }}" ]; then
+              echo "❌ Missing clean-up-old-deploy!"
               exit 1
             fi
 

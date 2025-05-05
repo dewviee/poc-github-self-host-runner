@@ -70,41 +70,41 @@ jobs:
             ssh -i private_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} <<EOF
               set -euo pipefail
 
-            # Ensure a parameter is passed
-            if [ $# -ne 1 ]; then
-              echo "❌ Usage: ${{inputs.destination}} <relative-deploy-folder>"
-              exit 1
-            fi
-
-            # Get absolute path of script directory
-            SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-            TARGET_DIR="$(realpath "$1")"
-
-            # Check that the target is inside the script directory
-            if [[ "$TARGET_DIR" != "$SCRIPT_DIR"* ]]; then
-              echo "❌ Refusing to operate outside script directory: $TARGET_DIR"
-              exit 1
-            fi
-
-            cd "$TARGET_DIR" || { echo "❌ Failed to cd into $TARGET_DIR"; exit 1; }
-
-            echo "📁 Cleaning in: $TARGET_DIR"
-
-            # Get absolute path of the symlink target
-            target=$(readlink -f release)
-
-            # Loop through all folders (excluding symlinks)
-            for dir in */; do
-              [ -d "$dir" ] || continue
-              fullpath=$(realpath "$dir")
-              if [[ "$fullpath" != "$target" ]]; then
-                echo "🗑️ Removing $dir"
-                rm -rf "$dir"
-              else
-                echo "✅ Keeping $dir (symlink target)"
+              # Ensure a parameter is passed
+              if [ $# -ne 1 ]; then
+                echo "❌ Usage: ${{inputs.destination}} <relative-deploy-folder>"
+                exit 1
               fi
-            done
 
-            echo "🎉 Done cleaning!"
+              # Get absolute path of script directory
+              SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+              TARGET_DIR="$(realpath "$1")"
+
+              # Check that the target is inside the script directory
+              if [[ "$TARGET_DIR" != "$SCRIPT_DIR"* ]]; then
+                echo "❌ Refusing to operate outside script directory: $TARGET_DIR"
+                exit 1
+              fi
+
+              cd "$TARGET_DIR" || { echo "❌ Failed to cd into $TARGET_DIR"; exit 1; }
+
+              echo "📁 Cleaning in: $TARGET_DIR"
+
+              # Get absolute path of the symlink target
+              target=$(readlink -f release)
+
+              # Loop through all folders (excluding symlinks)
+              for dir in */; do
+                [ -d "$dir" ] || continue
+                fullpath=$(realpath "$dir")
+                if [[ "$fullpath" != "$target" ]]; then
+                  echo "🗑️ Removing $dir"
+                  rm -rf "$dir"
+                else
+                  echo "✅ Keeping $dir (symlink target)"
+                fi
+              done
+
+              echo "🎉 Done cleaning!"
             EOF
           fi

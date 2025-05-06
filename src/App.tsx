@@ -17,8 +17,17 @@ function App() {
         </a>
       </div>
       <h1>Vite + React.</h1>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        {import.meta.env.VITE_HELLOWORLD}
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK-4JI5Ovp2LsGo2zSDc50Dq7YnDgEEXKm9g&s" />
+      </div>
 
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK-4JI5Ovp2LsGo2zSDc50Dq7YnDgEEXKm9g&s" />
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}

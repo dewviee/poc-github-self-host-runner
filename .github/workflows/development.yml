@@ -16,6 +16,8 @@ jobs:
   build:
     name: Build Project
     uses: ./.github/workflows/reusable-build.yml
+    with:
+      environment: development
     # needs: ts-check # Ensures the test job completes successfully before running build
 
   deploy:

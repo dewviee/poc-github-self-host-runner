@@ -5,10 +5,13 @@ on:
     inputs:
       bun-version:
         type: string
+      environment:
+        type: string
 
 jobs:
   build:
     runs-on: self-hosted
+    environment: ${{inputs.environment}}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

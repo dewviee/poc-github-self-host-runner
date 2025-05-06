@@ -12,6 +12,8 @@ jobs:
   build:
     runs-on: self-hosted
     environment: ${{inputs.environment}}
+    env:
+      VITE_HELLOWORLD: ${{ vars.VITE_HELLOWORLD }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
